@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Chat Room</title>
+		<link rel="stylesheet" href="css/main.css">
+		<link href='https://fonts.googleapis.com/css?family=Lora:400,700' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+	</head>
+
+	<body>
+	
+		<div class="chat">
+		
+			<div class="name_container">
+				<input type="text" class="chat_name" autofocus placeholder="Enter your name">
+			</div>
+			
+			<div class="hide"> 
+				<div class="flex_wrapper outer">
+				
+					<div class="chat_messages"></div>
+					
+					<div class="typing"></div>
+					
+					<div class="flex_wrapper inner">
+					
+						<textarea id="chat_area" placeholder="Type your message" spellcheck="false"></textarea>
+						
+						<div class="chat_status">Status: <span>Idle</span></div>
+						
+						<div class="connections"><h3>Who's here?</h3></div>
+						
+					</div>
+					
+				</div>
+			</div>
+		
+		</div>
+		
+		<script src="http://127.0.0.1:8080/socket.io/socket.io.js"></script>
+		
+		<script src="js/jquery-1.11.3.min.js"></script>
+		
+		<script>
+		
+			(function() {
+			
+				var getNode = function(s) {
+					return document.querySelector(s);
+				},
+				status = getNode('.chat_status span')
+				textarea = getNode('.chat textarea'),
+				messages = getNode('.chat_messages'),
+				chatName = getNode('.chat_name'),
+				typingIndicator = getNode('.typing'),
+				connectionsPanel = getNode('.connections'),
+				statusDefault = status.textContent,
+				setStatus = function(s){
+					status.textContent = s;
+					if(s !== statusDefault){
+						var delay = setTimeout(function(){
+							setStatus(statusDefault);
+							clearInterval(delay);
+						}, 3000);
+					}
+				};
+				
+				chatName.addEventListener('keydown', function() {
+					
+					if(event.which === 13){
+						event.preventDefault();
+						var name = chatName.value,
+							  whiteSpacePattern = /^\s*$/;
+							  
+						if(whiteSpacePattern.test(name)){
+							alert('Please enter a username');
+						} else {
+							startConnection();
+							chatName.disabled = true;
+							$('.hide').slideDown();
+							textarea.focus();
+						}
+								
+					}
+				
+				});
+				
+				function startConnection(){
+				
+					try {
+						var socket = io.connect('http://127.0.0.1:8080');
+					} catch(e) {
+						//Set status to warn user
+						
+					}
+					
+					if(socket !== undefined){
+					
+						setStatus('Welcome!');
+						
+						var notif_sound = new Audio("sound/notif.mp3");
+						notif_sound.volume = 0.1;
+						
+						//Notify when user connects
+						socket.on('connect', function(){
+							var name = chatName.value;
+							socket.emit('userJoined', { name : name});
+						});
+						
+						socket.on('updateUsersConnected', function(data){
+							if(data.length){
+								while (connectionsPanel.firstChild) {
+									 connectionsPanel.removeChild(connectionsPanel.firstChild);
+								}
+								console.log("data.length = " + data.length);
+								for(var x=0; x<data.length; x++){
+									var name = data[x].name;
+									var joined = document.createElement('div');
+									joined.innerHTML = name;
+									connectionsPanel.appendChild(joined);
+								}
+							}
+							
+						});
+						
+						window.onbeforeunload = function(event){
+							var name = chatName.value;
+							socket.emit('userLeft', {name:name});
+							socket.disconnect();
+						 };
+						
+						socket.on('disconnect', function(data){
+							var name = chatName.value;
+							socket.emit('userLeft', {name:name});
+						});
+					
+						//Listen for output
+						socket.on('output', function(data){
+							if(data.length){
+								//Loop through results
+								for(var x=0; x<data.length; x++){ 	
+									var msg = document.createElement('div');
+									msg.setAttribute('class', 'chat_message');
+									
+									if(chatName.value === data[x].name){
+										msg.innerHTML = "<span class='accent'>" + "[" + data[x].time + "] " + data[x].name + ": </span>";
+									} else {
+										msg.innerHTML = "<span>" + "[" + data[x].time + "] " + data[x].name +": </span>";
+									}
+									
+									if("isLink" in data[x]){
+										var img_preview = document.createElement('img');
+										img_preview.src = data[x].message;
+										msg.innerHTML += "<br>";
+										msg.appendChild(img_preview);
+									} else {
+										msg.innerHTML += data[x].message;
+									}
+									
+									//Append
+									messages.appendChild(msg);
+									messages.insertBefore(msg, messages.firstChild);
+								}
+							}
+						});
+					
+						//Listen for status
+						socket.on('status', function(data) {
+							setStatus( (typeof data === 'object') ? data.message : data);
+							if(data.clear === true){
+								textarea.value = '';
+							}
+						});
+						
+						socket.on('updateTyping', function(data) {
+							typingIndicator.textContent = data.name + " ...";
+							typingIndicator.style.visibility = "visible";
+							var timeout = setTimeout( function(){
+								typingIndicator.textContent = "";
+								typingIndicator.style.visibility = "hidden";
+								clearInterval(timeout);
+							}, 1300);
+						});
+					
+						//Listen for key down
+						textarea.addEventListener('keydown', function(){
+							var self = this,
+								name = chatName.value;
+								
+							if(event.which === 13 && event.shiftKey === false){
+								event.preventDefault();
+								var date = new Date();
+								var time = date.getHours()%12 + ":" + (date.getMinutes()<10?'0':'') + date.getMinutes();
+								socket.emit('input', {
+									name : name,
+									message : self.value,
+									time : time
+								});
+								notif_sound.play();
+							} else {
+								socket.emit('typing', {
+									name : name
+								});
+								//typingIndicator.style.visibility = "visible";
+							}
+								
+						});
+						
+						$('.chat_messages') 
+							.bind('dragover', function (evt) { 
+							evt.preventDefault(); 
+							$(this).css("border-color", "#FB0C59");
+						}) 
+						.bind('dragenter', function (evt) { 
+							evt.preventDefault(); 
+						}) 
+						.bind('dragleave', function (evt) { 
+							evt.preventDefault(); 
+							$(this).css("border-color", "transparent");
+						})
+						.bind('drop', function (evt) { 
+							$(this).css("border-color", "transparent");
+							evt.preventDefault();
+							console.log(event); 
+							var data = event.dataTransfer.getData("text/plain");
+							if((/\.(gif|jpg|jpeg|tiff|png)$/i).test(data)){
+								alert('valid image!');
+								var name = chatName.value;
+								var date = new Date();
+								var time = date.getHours()%12  + ":" + (date.getMinutes()<10?'0':'') + date.getMinutes();
+								socket.emit('input', {
+									name : name,
+									message : data,
+									time : time,
+									isLink : true
+								});
+							} else {
+								alert('INVALID image!');
+							}
+						});
+						
+						
+					}
+					
+				}
+			
+			})();
+		
+		</script>
+		
+	</body>
+	
+</html>
