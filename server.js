@@ -1,119 +1,129 @@
+// Load the core LoDash build.
+var _ = require('lodash/core');
 
+var mongo = require('mongodb').MongoClient;
+var client = require('socket.io').listen(8080).sockets;
 
+mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
+	if (error) {
+		throw error;
+	}
 
-var mongo = require('mongodb').MongoClient,
-	client = require('socket.io').listen(8080).sockets;
-
-mongo.connect('mongodb://127.0.0.1/chat', function(err, db){
-
-	if(err) throw err;
-	
-	client.sockets.forEach(function(s) {
-		 s.disconnect(true);
+	_.each(client.sockets, function (socket) {
+		socket.disconnect(true);
 	});
-	
-	client.on('connection', function(socket){
-	
+
+	client.on('connection', function(socket) {
 		console.log('Someone has connected');
-		
-		var col_messages = db.collection("messages");
-		var col_users_connected = db.collection("users_connected");
-		
-		col_users_connected.createIndex( { "name": 1 }, { unique: true } )
-		
-		var sendStatus = function(s){
-			socket.emit('status', s);
-		  };		
-			  
-		//Emit all messages on connection
-		col_messages.find().sort({ $natural: -1 }).limit(80).toArray( function(err, res){
-			if(err) throw err;
-			res.reverse();
-			socket.emit('output', res);
-		});
-		
-		 function updateUsersConnected(isClientEmit, data){
-			if(data){  
-				if(isClientEmit){
+
+		var messages = db.collection('messages');
+		var users = db.collection('users_connected');
+
+		// Retrieve all array with all documents users connected collection and call
+		// the addUsersConnected() function to notify all other clients someone has connected
+		var getConnectedUsers = function (isClientEmit, callback) {
+			users.find({}).toArray(function (error, result) {
+				callback(isClientEmit, result);
+			});
+		};
+
+		var sendStatus = function (status) {
+			socket.emit('status', status);
+		};
+
+		var updateConnectedUsers = function (isClientEmit, data) {
+			if (data) {
+				if (isClientEmit) {
 					client.emit('updateUsersConnected', data);
 				} else {
 					socket.emit('updateUsersConnected', data);
 				}
-				
-			};
-		}
-		
-		getUsersConnected(false, updateUsersConnected);
-		
-		//Retrieve all array with all documents users connected collection and call
-		//the addUsersConnected() function to notify all other clients someone has connected
-		function getUsersConnected(isClientEmit, callback){		
-			col_users_connected.find({}).toArray( function(err, res){
-				callback(isClientEmit, res);
-			});
-		}
-		
+			}
+		};
+
 		//When typing detected
-		socket.on('typing', function(data) {
+		socket.on('typing', function (data) {
 			socket.broadcast.emit('updateTyping', { name : data.name });
 		});
-		
+
 		//Notify all clients that a new user has connected
-		socket.on('userJoined', function(data){
+		socket.on('userJoined', function (data) {
 			var name = data.name;
-			col_users_connected.insert({name : name}, function(err, res){
-				if(err && err.code === 11000){
-					console.log(name + "already exists!");
-				} else {
-					getUsersConnected(true, updateUsersConnected);
+
+			users.insert({name : name}, function (error, result) {
+				if (error && error.code === 11000) {
+					console.log(name + ' already exists!');
 				}
+
+				getConnectedUsers(true, updateConnectedUsers);
 			});
 		});
-		
-		socket.on('userLeft', function(data){
+
+		socket.on('userLeft', function (data) {
 			var name = data.name;
-			col_users_connected.deleteMany( 
-				{"name":name}, 
-				function(err, results){
-					getUsersConnected(true, updateUsersConnected);
+
+			users.deleteMany({
+					"name": name
+				}, function(error, results){
+					getConnectedUsers(true, updateConnectedUsers);
 				}
 			);
 		});
 
 		//Wait for input
-		socket.on('input', function(data){
-			
-			var name = data.name,
-				 message = data.message,
-				 time = data.time,
-				 whiteSpacePattern = /^\s*$/;
-				 
+		socket.on('input', function (data) {
+			var name = data.name;
+			var message = data.message;
+			var time = data.time;
+			var whiteSpacePattern = /^\s*$/;
+
 			if(whiteSpacePattern.test(name) || whiteSpacePattern.test(message)){
 				sendStatus('Name and message is required.');
-			} else {
-				
-				var obj = {name : name, message : message, time : time};
-				if("isLink" in data){
-					obj.isLink = data.isLink;
-				}
-				col_messages.insert(obj, function(){
-				
-					//Emit latest message to ALL clients
-					client.emit('output', [data]);
-					
-					sendStatus({
-						message : "Message sent",
-						clear : true
-					});
-					
-				});
-				
+
+				return;
 			}
-				
+
+			var obj = {
+				name : name,
+				message : message,
+				time : time
+			};
+
+            if ('isLink' in data) {
+                obj.isLink = data.isLink;
+            }
+
+			messages.insert(obj, function() {
+				//Emit latest message to ALL clients
+				client.emit('output', [data]);
+
+				sendStatus({
+					message : "Message sent",
+					clear : true
+				});
+			});
 		});
-		
+
+		var init = function () {
+			// Add unique index on user's name
+			users.createIndex({'name': 1}, {unique: true});
+
+			// Emit up to 80 messages on connection
+			messages.find().sort({'_id': -1}).limit(80).toArray(function(error, result) {
+				if (error) {
+					throw error;
+				}
+
+				socket.emit('output', result);
+			});
+
+			getConnectedUsers(false, updateConnectedUsers);
+		};
+
+		init();
 	});
 
+	console.log('Server initiallized');
 });
 	
 
