@@ -1,0 +1,16 @@
+<div class="">
+    <div class="flex_wrapper outer">
+        <div class="chat_messages">
+            <div class="chat_message" v-for="message in messages">
+                <span>[{{message.time}}] {{message.name}}: </span>{{message.message}}
+            </div>
+        </div>
+        <div class="typing"></div>
+        <div class="flex_wrapper inner">
+            <textarea id="chat_area" placeholder="Type your message" spellcheck="false"></textarea>
+
+            <div class="chat_status">Status: <span>{{status}}</span></div>
+            <div class="connections"><h3>Who's here?</h3></div>
+        </div>
+    </div>
+</div>

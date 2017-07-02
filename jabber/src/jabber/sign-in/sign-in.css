@@ -1,0 +1,30 @@
+.name_container {
+    position: relative;
+}
+
+.name_container::before {
+    content:"";
+    display: block;
+    position: absolute;
+    top:50%;
+    left:0;
+    background: url('/static/ic_user.png') no-repeat;
+    background-size: contain;
+    background-position-x: 50%;
+    height: 60%;
+    width: 13%;
+    transform: translateY(-50%);
+}
+
+.chat_name {
+    width: 100%;
+    background-color: rgba(237,235,236,0.9);
+    color: #363C3D;
+    font-size: 2.4vw;
+    border-color: #132426;
+    border: none;
+    font-weight: bold;
+    padding: 3%;
+    padding-left: 12.5%;
+    font-family: 'Lora', serif;
+}
