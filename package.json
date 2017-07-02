@@ -1,0 +1,11 @@
+{
+  "name": "Jabber",
+  "version": "1.0.0",
+  "description": "My first Socket.IO application; a simple chat app with a little style!",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "mongodb": "^2.2.29",
+    "socket.io": "^2.0.3",
+    "vue": "^2.3.4"
+  }
+}
