@@ -1,5 +1,5 @@
 <div id="app">
-    <div class="chat">
+    <div class="chat full-vertical-height">
         <sign-in v-on:inputUsername="checkUserName" v-if="!isUserSignedIn"/>
         <chat-box v-if="isUserSignedIn"/>
     </div>

@@ -1,26 +1,43 @@
+*, *:before, *:after {
+    box-sizing: inherit;
+    outline: none;
+}
+
 html{
     box-sizing: border-box;
     background-color: #F4F4F4;
     font-size: 100%;
 }
 
-*, *:before, *:after {
-    box-sizing: inherit;
-    outline: none;
+body {
+    margin: 0;
+    padding: 0;
 }
 
 #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: #2c3e50;
-    margin-top: 60px;
+    color: #e2e2e2;
 }
 
-.chat {
-    max-width: 60%;
-    min-width: 300px;
-    margin: 0 auto;
-    margin-top: 5%;
-    box-shadow: 0 2px 6px #A5A5A5;
-    background-color: #EBEBEB;
+html, body, #app {
+    height: 100vh;
 }
+
+.full-vertical-height {
+    height: 100vh;
+}
+
+.chat ::-webkit-scrollbar {
+    width: 5px;
+}
+
+.chat ::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.chat ::-webkit-scrollbar-thumb {
+    background-color: #FB0C59;
+    border-radius: 15px;
+} /* this will style the thumb, ignoring the track */

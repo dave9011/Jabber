@@ -1,16 +1,30 @@
-<div class="">
-    <div class="flex_wrapper outer">
+<div class="full-vertical-height">
+    <div class="flex_wrapper outer full-vertical-height">
         <div class="chat_messages">
             <div class="chat_message" v-for="message in messages">
-                <span>[{{message.time}}] {{message.name}}: </span>{{message.message}}
+                <div class="message" v-if="!isOwnMessage(message)">
+                    <span>{{message.name}} [{{message.time}}] </span>{{message.message}}
+                </div>
+                <div class="message own-message" v-if="isOwnMessage(message)">
+                    {{message.message}} <span>{{message.name}} [{{message.time}}]</span>
+                </div>
             </div>
         </div>
-        <div class="typing"></div>
+        <div class="typing-indicator" v-if="isOtherUserTyping">
+            {{typingIndicator}}
+        </div>
         <div class="flex_wrapper inner">
-            <textarea id="chat_area" placeholder="Type your message" spellcheck="false"></textarea>
-
+            <!-- New Message -->
+            <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="onNewMessageSubmit"></textarea>
+            <!-- Connected Users -->
+            <div class="connections">
+                <h3>Participants</h3>
+                <div v-for="user in users">
+                    {{user.name}}
+                </div>
+            </div>
+            <!-- Status Indicator -->
             <div class="chat_status">Status: <span>{{status}}</span></div>
-            <div class="connections"><h3>Who's here?</h3></div>
         </div>
     </div>
 </div>
