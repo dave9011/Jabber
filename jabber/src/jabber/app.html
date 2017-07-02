@@ -1,0 +1,6 @@
+<div id="app">
+    <div class="chat">
+        <sign-in v-on:inputUsername="checkUserName" v-if="!isUserSignedIn"/>
+        <chat-box v-if="isUserSignedIn"/>
+    </div>
+</div>
