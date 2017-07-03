@@ -4,7 +4,7 @@ var _ = require('lodash/core');
 var mongo = require('mongodb').MongoClient;
 var client = require('socket.io').listen(8080).sockets;
 
-mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
+mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
 	if (error) {
 		throw error;
 	}
@@ -13,11 +13,11 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
 		socket.disconnect(true);
 	});
 
-	client.on('connection', function(socket) {
+	client.on('connection', function (socket) {
 		console.log('Someone has connected');
 
 		var messages = db.collection('messages');
-		var users = db.collection('users_connected');
+		var users = db.collection('users');
 
 		// Retrieve all array with all documents users connected collection and call
 		// the addUsersConnected() function to notify all other clients someone has connected
@@ -46,13 +46,48 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
 			socket.broadcast.emit('updateTyping', { name : data.name });
 		});
 
+        // //Notify all clients that a new user has connected
+        socket.on('attemptLogin', function (data) {
+            var email = data.email;
+            var username = data.username;
+
+            if (!email) {
+                console.log('Invalid email supplied: ' + email);
+                return;
+            }
+
+            users.find({'email': email}).limit(1).toArray(function (error, result) {
+                socket.emit('loginAttemptResult', {
+                    email: result[0].email ? result[0].email : email,
+                    user: result[0],
+                    username: result[0].username ? result[0].username : username,
+                    valid: result.length > 0
+                });
+
+                messages.find().sort({'_id': -1}).limit(80).toArray(function(error, result) {
+                    if (error) {
+                        throw error;
+                    }
+
+                    socket.emit('output', result);
+                });
+
+                getConnectedUsers(false, updateConnectedUsers);
+            });
+        });
+
 		//Notify all clients that a new user has connected
 		socket.on('userJoined', function (data) {
-			var name = data.name;
+			var email = data.email;
 
-			users.insert({name : name}, function (error, result) {
+            if (!email) {
+                console.log('Invalid email supplied: ' + email);
+                return;
+            }
+
+			users.insert({email : email}, function (error, result) {
 				if (error && error.code === 11000) {
-					console.log(name + ' already exists!');
+					console.log(email + ' already exists!');
 				}
 
 				getConnectedUsers(true, updateConnectedUsers);
@@ -72,18 +107,20 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
 
 		//Wait for input
 		socket.on('input', function (data) {
-			var name = data.name;
+			var username = data.username;
 			var message = data.message;
+			var userId = data.user_id;
 			var whiteSpacePattern = /^\s*$/;
 
-			if(whiteSpacePattern.test(name) || whiteSpacePattern.test(message)){
+			if(whiteSpacePattern.test(username) || whiteSpacePattern.test(message)){
 				sendStatus('Name and message is required.');
 
 				return;
 			}
 
 			var obj = {
-				name : name,
+                user_id: userId,
+                username : username,
 				message : message
 			};
 
@@ -104,18 +141,7 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
 
 		var init = function () {
 			// Add unique index on user's name
-			users.createIndex({'name': 1}, {unique: true});
-
-			// Emit up to 80 messages on connection
-			messages.find().sort({'_id': -1}).limit(80).toArray(function(error, result) {
-				if (error) {
-					throw error;
-				}
-
-				socket.emit('output', result);
-			});
-
-			getConnectedUsers(false, updateConnectedUsers);
+			users.createIndex({'email': 1}, {unique: true});
 		};
 
 		init();

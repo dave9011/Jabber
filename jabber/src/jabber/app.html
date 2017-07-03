@@ -1,6 +1,6 @@
 <div id="app">
     <div class="chat full-vertical-height">
         <sign-in v-on:inputUsername="checkUserName" v-if="!isUserSignedIn"/>
-        <chat-box v-if="isUserSignedIn"/>
+        <chat-box v-on:submitMessage="onMessageSubmit" :current-user="currentUser" :users="users" :messages="messages" v-if="isUserSignedIn"/>
     </div>
 </div>

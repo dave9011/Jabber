@@ -66,12 +66,14 @@
 }
 
 .own-message {
-    text-align: right;
+    background: #5ba4ff;
+    color: white;
     margin-left: 50%;
+    text-align: right;
 }
 
 .own-message span {
-    color: #6f0000;
+    color: #211b1b;
 }
 
 .chat_status {

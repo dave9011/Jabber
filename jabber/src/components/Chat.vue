@@ -5,10 +5,10 @@
 <script>
 export default {
     name: 'chat',
+    props: ['messages', 'users', 'currentUser'],
     data () {
 	    return {
 	        isOtherUserTyping: false,
-	        messages: [],
 	        newMessage: '',
 	        notification: null,
 	        statuses: {
@@ -17,8 +17,7 @@ export default {
 	        },
 	        status: null,
             socket: null,
-            typingIndicator: '',
-            users: []
+            typingIndicator: ''
 	    }
     },
     computed: {
@@ -36,53 +35,15 @@ export default {
         }
     },
     mounted: function() {
-        this.status = this.statuses.STATUS_OFFLINE;
-
-        if (!this.initConnection()) {
-            alert('Unable to connect to server!');
-        }
-
-        this.getMessages();
+        this.status = this.statuses.ONLINE;
     },
     methods: {
         getMessages: function () {
             var self = this;
 
-            if (self.socket !== undefined) {
-                self.setStatus(self.statuses.ONLINE);
+            /**
 
-                self.notification = new Audio('../static/notif.mp3');
-                self.notification.volume = 0.1;
-
-                //Notify when user connects
-                self.socket.on('connect', function(){
-                    //var name = chatName.value;
-                    self.socket.emit('userJoined', { name : 'name here!'});
-                });
-
-                self.socket.on('updateUsersConnected', function (data) {
-                    if (data.length) {
-                        self.users = data;
-                    }
-                });
-
-                //Listen for output
-                self.socket.on('output', function (data) {
-                    self.messages = self.messages.concat(data);
-
-                    // MongoDB contains a timestamp in the first 8 digits of the object's ID, we'll get the time from there
-                    self.messages.forEach(function (message) {
-                        var timestamp = message._id.toString().substring(0,8);
-
-                        message.time = new Date(parseInt(timestamp, 16) * 1000).toLocaleString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit'
-                        });
-                    });
-
-                    self.notification.play();
-                });
-
+            if (self.socket) {
                 self.socket.on('updateTyping', function(data) {
                     self.typingIndicator = data.name + " ...";
                     self.isOtherUserTyping = true;
@@ -93,39 +54,33 @@ export default {
                     }, 1300);
                 });
             }
-        },
-        initConnection: function () {
-            try {
-                this.socket = io.connect('http://127.0.0.1:8080');
-            } catch(error) {
-                console.log(error);
-                return false;
-            }
 
-            return true;
+            */
         },
         isOwnMessage: function (message) {
-            return message.name == 'Dave';
+            return message.user_id === this.currentUser._id;
         },
         onNewMessageSubmit: function (event) {
             var self = this;
 
+            var userName = self.currentUser.username;
             var message = self.newMessage;
-            var userName = 'David'; // TODO: udpate this to show current user's name
 
             if (event.which === 13 && event.shiftKey === false) {
                 event.preventDefault();
 
-                self.socket.emit('input', {
-                    name : userName,
-                    message : message
+                this.$emit('submitMessage', {
+                    username: userName,
+                    message: message
                 });
 
                 self.newMessage = '';
             } else {
+                /**
                 self.socket.emit('typing', {
-                    name : userName
+                    username : userName
                 });
+                */
             }
         },
         setStatus: function (status) {

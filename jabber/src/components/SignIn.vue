@@ -7,16 +7,23 @@ export default {
     props: ['isUserSignedIn'],
     data () {
 	    return {
+	        email: '',
 	        username: ''
 	    }
     },
     methods: {
         onSubmit: function (event) {
             this.username = this.username.trim();
+            this.email = this.email.trim();
 
-            this.$emit('inputUsername', {
-                isValid: this.username ? true : false
-            });
+            if (this.email && this.username) {
+                this.$emit('inputUsername', {
+                    username: this.username,
+                    email: this.email
+                });
+            } else {
+                alert('Please supply a valid username and email');
+            }
         }
     }
 }
