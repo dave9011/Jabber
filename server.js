@@ -93,9 +93,9 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
                 obj.isLink = data.isLink;
             }
 
-			messages.insert(obj, function() {
+			messages.insert(obj, function (error, result) {
 				//Emit latest message to ALL clients
-				client.emit('output', [data]);
+				client.emit('output', result.ops);
 
 				sendStatus({
 					message : "Message sent",
