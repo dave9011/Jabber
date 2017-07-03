@@ -74,7 +74,6 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
 		socket.on('input', function (data) {
 			var name = data.name;
 			var message = data.message;
-			var time = data.time;
 			var whiteSpacePattern = /^\s*$/;
 
 			if(whiteSpacePattern.test(name) || whiteSpacePattern.test(message)){
@@ -85,8 +84,7 @@ mongo.connect('mongodb://127.0.0.1/chat', function(error, db) {
 
 			var obj = {
 				name : name,
-				message : message,
-				time : time
+				message : message
 			};
 
             if ('isLink' in data) {

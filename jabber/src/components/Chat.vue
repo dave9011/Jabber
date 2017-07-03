@@ -21,22 +21,32 @@ export default {
             users: []
 	    }
     },
+    computed: {
+        sortedMessages: function () {
+            return this.messages.sort(function (a, b) {
+                if (a._id > b._id) {
+                    return -1;
+                }
+                if (a._id < b._id) {
+                    return 1
+                }
+
+                return 0;
+            });
+        }
+    },
     mounted: function() {
         this.status = this.statuses.STATUS_OFFLINE;
+
+        if (!this.initConnection()) {
+            alert('Unable to connect to server!');
+        }
 
         this.getMessages();
     },
     methods: {
         getMessages: function () {
             var self = this;
-
-            try {
-                self.socket = io.connect('http://127.0.0.1:8080');
-            } catch(error) {
-                //Set status to warn user
-                console.log(error);
-                alert('Unable to connect to server!');
-            }
 
             if (self.socket !== undefined) {
                 self.setStatus(self.statuses.ONLINE);
@@ -58,7 +68,19 @@ export default {
 
                 //Listen for output
                 self.socket.on('output', function (data) {
-                    self.messages = data;
+                    self.messages = self.messages.concat(data);
+
+                    // MongoDB contains a timestamp in the first 8 digits of the object's ID, we'll get the time from there
+                    self.messages.forEach(function (message) {
+                        var timestamp = message._id.toString().substring(0,8);
+
+                        message.time = new Date(parseInt(timestamp, 16) * 1000).toLocaleString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit'
+                        });
+                    });
+
+                    self.notification.play();
                 });
 
                 self.socket.on('updateTyping', function(data) {
@@ -72,29 +94,34 @@ export default {
                 });
             }
         },
+        initConnection: function () {
+            try {
+                this.socket = io.connect('http://127.0.0.1:8080');
+            } catch(error) {
+                console.log(error);
+                return false;
+            }
+
+            return true;
+        },
         isOwnMessage: function (message) {
             return message.name == 'Dave';
         },
         onNewMessageSubmit: function (event) {
-            this.newMessage = this.newMessage.trim();
-
             var self = this;
+
+            var message = self.newMessage;
             var userName = 'David'; // TODO: udpate this to show current user's name
 
-            if(event.which === 13 && event.shiftKey === false){
+            if (event.which === 13 && event.shiftKey === false) {
                 event.preventDefault();
-                var date = new Date();
-                var time = date.getHours()%12 + ":" + (date.getMinutes()<10?'0':'') + date.getMinutes();
 
                 self.socket.emit('input', {
                     name : userName,
-                    message : self.value,
-                    time : time
+                    message : message
                 });
 
-                console.log(self.notification);
-
-                self.notification.play();
+                self.newMessage = '';
             } else {
                 self.socket.emit('typing', {
                     name : userName

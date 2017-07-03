@@ -1,7 +1,7 @@
 <div class="full-vertical-height">
     <div class="flex_wrapper outer full-vertical-height">
         <div class="chat_messages">
-            <div class="chat_message" v-for="message in messages">
+            <div class="chat_message" v-for="message in sortedMessages">
                 <div class="message" v-if="!isOwnMessage(message)">
                     <span>{{message.name}} [{{message.time}}] </span>{{message.message}}
                 </div>
