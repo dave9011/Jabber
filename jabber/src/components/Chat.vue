@@ -21,10 +21,10 @@ export default {
         sortedMessages: function () {
             return this.$store.state.messages.sort(function (a, b) {
                 if (a._id > b._id) {
-                    return -1;
+                    return 1;
                 }
                 if (a._id < b._id) {
-                    return 1
+                    return -1
                 }
 
                 return 0;
@@ -50,11 +50,11 @@ export default {
         });
 
         self.$store.state.socket.on('updateTyping', function (data) {
-            self.typingIndicator = data.username + ' ...';
+            self.typingIndicator = data.username;
             self.isOtherUserTyping = true;
 
             var timeout = setTimeout( function(){
-                self.typingIndicator = '';
+                self.isOtherUserTyping = false;
                 clearInterval(timeout);
             }, 1300);
         });

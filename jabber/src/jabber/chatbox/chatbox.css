@@ -1,10 +1,30 @@
 .flex_wrapper {
     display: flex;
-    background-color: #3d3d58;
 }
 
-.outer {
-    position: relative;
+.left-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 70%;
+}
+
+.right-content {
+    display: flex;
+    width: 30%;
+}
+
+.chat-messages-hold {
+    background: url('/static/sports.png');
+    border: 1px solid transparent;
+    border-right: 1px solid #CACACA;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.1vw;
+    height: 100vh;
+    padding: 30px 30px 40px;
+    overflow-y: scroll;
+    width: 100%;
 }
 
 .inner {
@@ -12,6 +32,54 @@
     flex-grow: 1;
     width: 35%;
     max-height: 100%;
+}
+
+.chat_message {
+    margin-bottom: 15px;
+    word-break: break-all;
+}
+
+.chat_message > img {
+    max-width: 50%;
+    max-height: 250px;
+    margin-top: 6px;
+}
+
+.chat_message.own-message {
+    color: white;
+    align-self: flex-end;
+}
+
+.chat_message.own-message .message {
+    background: #5ba4ff;
+}
+
+.chat_message.own-message .message span {
+    color: #211b1b;
+}
+
+.message {
+    color: #e2e2e2;
+    background: #f35858;
+    border-radius: 10px;
+    display: inline-block;
+    font-size: 13px;
+    padding: 15px 20px;
+}
+
+.message span {
+    color: #6f0000;
+}
+
+.typing-indicator {
+    background-color: #7070de;
+    bottom: 0;
+    color: #FFF;
+    font-size: 1.1vw;
+    left:0;
+    padding: 10px 30px;
+    position: absolute;
+    width: 100%;
 }
 
 #chat_area {
@@ -30,73 +98,17 @@
     padding-top: 4%;
 }
 
-.chat_message {
-    margin-bottom: 3%;
-    padding-bottom: 1%;
-    word-break: break-all;
-}
-
-.chat_message > img {
-    max-width: 50%;
-    max-height: 250px;
-    margin-top: 6px;
-}
-
-.chat_messages {
-    background: url('/static/sports.png');
-    font-size: 1.1vw;
-    width: 70%;
-    overflow-y: scroll;
-    padding: 2%;
-    border: 1px solid transparent;
-    border-right: 1px solid #CACACA;
-}
-
-.message {
-    color: #e2e2e2;
-    background: #f35858;
-    border-radius: 10px;
-    font-size: 13px;
-    padding: 15px 20px;
-    width: 50%;
-}
-
-.message span {
-    color: #6f0000;
-}
-
-.own-message {
-    background: #5ba4ff;
-    color: white;
-    margin-left: 50%;
-    text-align: right;
-}
-
-.own-message span {
-    color: #211b1b;
-}
-
 .chat_status {
-    background-color: rgb(54, 60, 61);
+    background-color: #1d1d38;
     padding: 10px 10px;
     color: #EBEBEB;
-    font-size: 1.2vw;
+    font-size: 1.1vw;
     text-align: center;
     margin-top: 0;
 }
 
-.typing-indicator {
-    position: absolute;
-    left:0;
-    bottom: 0;
-    width: 65%;
-    color: #FFF;
-    font-size: 1.2vw;
-    background-color: #FA0C58;
-    padding: 0.5% 2%;
-}
-
 .connections {
+    background-color: #252556;
     -ms-flex-positive: 2;
     padding-left: 3%;
     overflow-y: scroll;

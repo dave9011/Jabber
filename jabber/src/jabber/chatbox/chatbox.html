@@ -1,30 +1,34 @@
 <div class="full-vertical-height">
-    <div class="flex_wrapper outer full-vertical-height">
-        <div class="chat_messages">
-            <div class="chat_message" v-for="message in sortedMessages">
-                <div class="message" v-if="!isOwnMessage(message)">
-                    <span>{{message.name}} [{{message.time}}] </span>{{message.message}}
-                </div>
-                <div class="message own-message" v-if="isOwnMessage(message)">
-                    {{message.message}} <span>{{message.name}} [{{message.time}}]</span>
-                </div>
-            </div>
-        </div>
-        <div class="typing-indicator" v-if="isOtherUserTyping">
-            {{typingIndicator}}
-        </div>
-        <div class="flex_wrapper inner">
-            <!-- New Message -->
-            <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="submitMessage"></textarea>
-            <!-- Connected Users -->
-            <div class="connections">
-                <h3>Participants</h3>
-                <div v-for="user in users">
-                    {{user.username}}
+    <div class="flex_wrapper full-vertical-height">
+        <div class="left-content">
+            <div class="chat-messages-hold">
+                <div class="chat_message" v-for="message in sortedMessages" v-bind:class="{'own-message': isOwnMessage(message)}">
+                    <div class="message" v-if="!isOwnMessage(message)">
+                        <span>{{message.name}} [{{message.time}}] </span>{{message.message}}
+                    </div>
+                    <div class="message " v-else>
+                        {{message.message}} <span>{{message.name}} [{{message.time}}]</span>
+                    </div>
                 </div>
             </div>
-            <!-- Status Indicator -->
-            <div class="chat_status">Status: <span>{{status}}</span></div>
+            <div class="typing-indicator" v-if="isOtherUserTyping">
+                {{typingIndicator}} is typing ...
+            </div>
+        </div>
+        <div class="right-content">
+            <div class="flex_wrapper inner">
+                <!-- New Message -->
+                <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="submitMessage"></textarea>
+                <!-- Connected Users -->
+                <div class="connections">
+                    <h3>Participants</h3>
+                    <div v-for="user in users">
+                        {{user.username}}
+                    </div>
+                </div>
+                <!-- Status Indicator -->
+                <div class="chat_status">Status: <span>{{status}}</span></div>
+            </div>
         </div>
     </div>
 </div>
