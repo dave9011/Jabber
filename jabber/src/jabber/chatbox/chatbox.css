@@ -107,17 +107,32 @@
     margin-top: 0;
 }
 
-.connections {
+.connected-users-hold {
     background-color: #252556;
-    -ms-flex-positive: 2;
-    padding-left: 3%;
-    overflow-y: scroll;
-    font-size: 2vw;
     flex: 2;
 }
 
-.connection h3 {
-    margin: 0.6em 0;
+.connected-users-hold .title {
+    display: flex;
+}
+
+.connected-users {
+    display: flex;
+}
+
+.connected-users .user-info {
+    font-size: 0.8vw;
+    padding: 10px;
+    text-align: center;
+    width: 20%;
+}
+
+.connected-users .user-info .avatar {
+    margin-bottom: 3px;
+}
+
+.connected-users .user-info .name {
+    color: #8f8fca;
 }
 
 .accent {

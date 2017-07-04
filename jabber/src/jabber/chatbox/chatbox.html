@@ -20,10 +20,13 @@
                 <!-- New Message -->
                 <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="submitMessage"></textarea>
                 <!-- Connected Users -->
-                <div class="connections">
-                    <h3>Participants</h3>
-                    <div v-for="user in users">
-                        {{user.username}}
+                <div class="connected-users-hold">
+                    <h3 class="title">Participants</h3>
+                    <div class="connected-users">
+                        <div class="user-info" v-for="user in users">
+                            <img class="avatar" :src="getUserAvatar(user)">
+                            <span class="name">{{user.username}}</span>
+                        </div>
                     </div>
                 </div>
                 <!-- Status Indicator -->

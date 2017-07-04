@@ -3,6 +3,8 @@
 <style src="./../jabber/chatbox/chatbox.css" scoped></style>
 
 <script>
+import _ from 'lodash';
+
 export default {
     name: 'chat',
     data () {
@@ -21,10 +23,11 @@ export default {
         sortedMessages: function () {
             return this.$store.state.messages.sort(function (a, b) {
                 if (a._id > b._id) {
-                    return 1;
+                    return -1;
                 }
+
                 if (a._id < b._id) {
-                    return -1
+                    return 1;
                 }
 
                 return 0;
@@ -45,7 +48,11 @@ export default {
 
         self.$store.state.socket.on('updateUsersConnected', function (data) {
             if (Array.isArray(data)) {
-                self.$store.state.users = data;
+                _.each(data, function (user) {
+                    user.avatar = _.sample(self.$store.state.avatars);
+                });
+
+                self.$store.commit('setUsers', data);
             }
         });
 
@@ -63,6 +70,9 @@ export default {
         this.status = this.statuses.ONLINE;
     },
     methods: {
+        getUserAvatar: function (user) {
+            return user.avatar;
+        },
         isOwnMessage: function (message) {
             return message.user_id === this.$store.state.currentUser._id;
         },
