@@ -52,13 +52,15 @@ export default {
         });
 
         self.$store.state.socket.on('updateTyping', function (data) {
-            self.typingIndicator = data.username;
-            self.isOtherUserTyping = true;
+            if (!self.isOtherUserTyping) {
+                self.typingIndicator = data.username;
+                self.isOtherUserTyping = true;
 
-            var timeout = setTimeout( function(){
-                self.isOtherUserTyping = false;
-                clearInterval(timeout);
-            }, 1300);
+                var timeout = setTimeout(function () {
+                    self.isOtherUserTyping = false;
+                    clearInterval(timeout);
+                }, 1600);
+            }
         });
     },
     mounted: function() {

@@ -16,8 +16,6 @@
 
 .chat-messages-hold {
     background: url('/static/sports.png');
-    border: 1px solid transparent;
-    border-right: 1px solid #CACACA;
     display: flex;
     flex-direction: column;
     font-size: 1.1vw;
@@ -71,38 +69,31 @@
     color: #6f0000;
 }
 
+.chat_area {
+    background: #f4f4f4;
+    border: none;
+    border-top: 1px solid #dcdcdc;
+    color: #1d1d38;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-size: 0.9vw;
+    padding: 10px 20px;
+}
+
 .typing-indicator {
     background-color: #7070de;
     bottom: 0;
     color: #FFF;
-    font-size: 1.1vw;
+    font-size: 0.7vw;
     left:0;
-    padding: 10px 30px;
-    position: absolute;
+    padding: 8px 20px;
     width: 100%;
-}
-
-#chat_area {
-    width: 100%;
-    border-top: none;
-    max-width: 100%;
-    color: #363C3D;
-    font-size: 1.2vw;
-    flex-grow: 6;
-    max-width: 100%;
-    resize: none;
-    margin-top: 2px;
-    border: none;
-    border-bottom: 1px solid #CACACA;
-    padding-left: 4%;
-    padding-top: 4%;
 }
 
 .chat_status {
     background-color: #1d1d38;
-    padding: 10px 10px;
+    padding: 10px;
     color: #EBEBEB;
-    font-size: 1.1vw;
+    font-size: 0.9vw;
     text-align: center;
     margin-top: 0;
 }

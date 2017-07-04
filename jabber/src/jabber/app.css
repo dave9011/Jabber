@@ -38,6 +38,6 @@ html, body, #app {
 }
 
 .chat ::-webkit-scrollbar-thumb {
-    background-color: #FB0C59;
+    background-color: #4bdca6;
     border-radius: 15px;
 } /* this will style the thumb, ignoring the track */

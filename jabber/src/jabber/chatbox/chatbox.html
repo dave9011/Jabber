@@ -11,14 +11,15 @@
                     </div>
                 </div>
             </div>
+            <!-- Typing Indicator -->
             <div class="typing-indicator" v-if="isOtherUserTyping">
                 {{typingIndicator}} is typing ...
             </div>
+            <!-- New Message -->
+            <input class="chat_area" v-focus placeholder="Type your message here" v-model="newMessage" v-on:keyup="submitMessage"></input>
         </div>
         <div class="right-content">
             <div class="flex_wrapper inner">
-                <!-- New Message -->
-                <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="submitMessage"></textarea>
                 <!-- Connected Users -->
                 <div class="connected-users-hold">
                     <h3 class="title">Participants</h3>

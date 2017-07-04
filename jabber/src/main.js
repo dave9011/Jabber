@@ -6,6 +6,14 @@ import store from "./../vuex/store";
 
 Vue.config.productionTip = false;
 
+Vue.directive('focus', {
+    inserted: function (el, binding, vnode) {
+        Vue.nextTick(function() {
+            el.focus()
+        })
+    }
+});
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
