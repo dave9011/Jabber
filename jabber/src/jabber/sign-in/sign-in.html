@@ -1,5 +1,17 @@
-<div class="name_container">
-    <input class="chat_name" autofocus placeholder="Enter your name" v-model="username">
-    <input class="chat_name" type="email" placeholder="Enter your email" v-model="email">
-    <button v-on:click="onSubmit">Submit</button>
+<div class="sign-in-hold-outer">
+    <div class="sign-in-hold-inner">
+        <div class="sign-in-form">
+            <div class="form-row">
+                <label>Username</label>
+                <input autofocus placeholder="e.g. John Doe" v-model="username">
+            </div>
+            <div class="form-row">
+                <label>Email</label>
+                <input type="email" placeholder="e.g. example@email.com" v-model="email">
+            </div>
+            <div class="form-row">
+                <button class="submit-btn" v-on:click="onSubmit">Submit</button>
+            </div>
+        </div>
+    </div>
 </div>

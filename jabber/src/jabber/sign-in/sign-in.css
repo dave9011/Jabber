@@ -1,30 +1,53 @@
-.name_container {
-    position: relative;
+.sign-in-hold-outer {
+    margin: 0 auto;
+    padding-top: 50px;
+    width: 30%;
 }
 
-.name_container::before {
-    content:"";
-    display: block;
-    position: absolute;
-    top:50%;
-    left:0;
-    /** background: url('/static/ic_user.png') no-repeat; **/
-    background-size: contain;
-    background-position-x: 50%;
-    height: 60%;
-    width: 13%;
-    transform: translateY(-50%);
+.sign-in-hold-inner {
+    background-color: #ececec;
+    padding: 30px;
 }
 
-.chat_name {
-    width: 100%;
-    background-color: rgba(237,235,236,0.9);
-    color: #363C3D;
-    font-size: 2.4vw;
-    border-color: #132426;
+.sign-in-hold-outer .form-row {
+    color: #252556;
+    font-size: 1.5vw;
     border: none;
     font-weight: bold;
-    padding: 3%;
-    padding-left: 12.5%;
     font-family: 'Lora', serif;
+    margin-bottom: 10px;
+}
+
+.sign-in-hold-outer .form-row label {
+    display: block;
+    width: 100%;
+}
+
+.sign-in-hold-outer .form-row input {
+    background: white;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    display: block;
+    font-size: 14px;
+    padding: 8px;
+    width: 100%;
+}
+
+.sign-in-hold-outer .form-row .submit-btn {
+    background-color: #252556;
+    background: #5ba4ff;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.5vw;
+    font-family: 'Lora', serif;
+    font-weight: bold;
+    margin-top: 15px;
+    padding: 15px 20px;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.sign-in-hold-outer .form-row .submit-btn:hover {
+    background: #5199f3;
 }
