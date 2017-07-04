@@ -15,7 +15,7 @@
         </div>
         <div class="flex_wrapper inner">
             <!-- New Message -->
-            <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="onNewMessageSubmit"></textarea>
+            <textarea class="chat_area" placeholder="Type your message" spellcheck="false" v-model="newMessage" v-on:keyup="submitMessage"></textarea>
             <!-- Connected Users -->
             <div class="connections">
                 <h3>Participants</h3>

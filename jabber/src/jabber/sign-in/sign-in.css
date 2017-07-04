@@ -8,7 +8,7 @@
     position: absolute;
     top:50%;
     left:0;
-    background: url('/static/ic_user.png') no-repeat;
+    /** background: url('/static/ic_user.png') no-repeat; **/
     background-size: contain;
     background-position-x: 50%;
     height: 60%;

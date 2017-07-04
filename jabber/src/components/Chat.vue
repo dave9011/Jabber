@@ -5,24 +5,21 @@
 <script>
 export default {
     name: 'chat',
-    props: ['messages', 'users', 'currentUser'],
     data () {
 	    return {
 	        isOtherUserTyping: false,
 	        newMessage: '',
-	        notification: null,
 	        statuses: {
                 OFFLINE: 'Offline',
                 ONLINE: 'Online'
 	        },
 	        status: null,
-            socket: null,
             typingIndicator: ''
 	    }
     },
     computed: {
         sortedMessages: function () {
-            return this.messages.sort(function (a, b) {
+            return this.$store.state.messages.sort(function (a, b) {
                 if (a._id > b._id) {
                     return -1;
                 }
@@ -32,55 +29,62 @@ export default {
 
                 return 0;
             });
+        },
+        users: function () {
+            return this.$store.state.users;
         }
+    },
+    created: function () {
+        var self = this;
+
+        self.$store.state.socket.on('output', function (data) {
+            self.$store.commit('setMessages', data);
+
+            self.$store.state.messageNotif.play();
+        });
+
+        self.$store.state.socket.on('updateUsersConnected', function (data) {
+            if (Array.isArray(data)) {
+                self.$store.state.users = data;
+            }
+        });
+
+        self.$store.state.socket.on('updateTyping', function (data) {
+            self.typingIndicator = data.username + ' ...';
+            self.isOtherUserTyping = true;
+
+            var timeout = setTimeout( function(){
+                self.typingIndicator = '';
+                clearInterval(timeout);
+            }, 1300);
+        });
     },
     mounted: function() {
         this.status = this.statuses.ONLINE;
     },
     methods: {
-        getMessages: function () {
-            var self = this;
-
-            /**
-
-            if (self.socket) {
-                self.socket.on('updateTyping', function(data) {
-                    self.typingIndicator = data.name + " ...";
-                    self.isOtherUserTyping = true;
-
-                    var timeout = setTimeout( function(){
-                        self.typingIndicator = '';
-                        clearInterval(timeout);
-                    }, 1300);
-                });
-            }
-
-            */
-        },
         isOwnMessage: function (message) {
-            return message.user_id === this.currentUser._id;
+            return message.user_id === this.$store.state.currentUser._id;
         },
-        onNewMessageSubmit: function (event) {
+        submitMessage: function (event) {
             var self = this;
-
-            var userName = self.currentUser.username;
             var message = self.newMessage;
+            var username = self.$store.state.currentUser.username;
 
             if (event.which === 13 && event.shiftKey === false) {
                 event.preventDefault();
 
-                this.$emit('submitMessage', {
-                    username: userName,
+                self.$store.state.socket.emit('input', {
+                    user_id: self.$store.state.currentUser._id,
+                    username: username,
                     message: message
                 });
 
                 self.newMessage = '';
             } else {
-                /**
-                self.socket.emit('typing', {
-                    username : userName
+                self.$store.state.socket.emit('typing', {
+                    username: username
                 });
-                */
             }
         },
         setStatus: function (status) {

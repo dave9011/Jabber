@@ -43,7 +43,7 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
 
 		//When typing detected
 		socket.on('typing', function (data) {
-			socket.broadcast.emit('updateTyping', { name : data.name });
+			socket.broadcast.emit('updateTyping', {username: data.username});
 		});
 
         // //Notify all clients that a new user has connected
