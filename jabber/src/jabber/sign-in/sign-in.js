@@ -11,8 +11,6 @@ export default {
 
         self.$store.state.socket.on('loginAttemptResult', function (result) {
             if (result && result.valid === true) {
-                alert(result.username + ' connected!');
-
                 self.$store.commit('setCurrentUser', result.user);
                 self.$store.commit('setLoggedIn');
 

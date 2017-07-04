@@ -12,11 +12,10 @@
 
 .sign-in-hold-outer .form-row {
     color: #252556;
-    font-size: 1.5vw;
+    font-size: 1.1vw;
     border: none;
     font-weight: bold;
-    font-family: 'Lora', serif;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .sign-in-hold-outer .form-row label {
@@ -35,20 +34,26 @@
 }
 
 .sign-in-hold-outer .form-row .submit-btn {
-    background-color: #252556;
-    background: #5ba4ff;
-    border: none;
+    background-color: #5ba4ff;
+    border-radius: 3px;
+    border: 1px solid transparent;
     color: white;
     cursor: pointer;
-    font-size: 1.5vw;
-    font-family: 'Lora', serif;
-    font-weight: bold;
-    margin-top: 15px;
+    font-size: 1.3vw;
+    margin-top: 10px;
     padding: 15px 20px;
     text-transform: uppercase;
     width: 100%;
 }
 
-.sign-in-hold-outer .form-row .submit-btn:hover {
-    background: #5199f3;
+.sign-in-hold-outer .form-row .submit-btn:hover, .sign-in-hold-outer .form-row .submit-btn:focus {
+    background-color: #5199f3;
+}
+
+.sign-in-hold-outer .form-row .submit-btn:active {
+    background-color: #3d81d6;
+    border: 1px solid #4080d0;
+    box-shadow: inset 0 1px 4px #305f9a;
+    -webkit-box-shadow: inset 0 1px 4px #305f9a;
+    -moz-box-shadow: inset 0 1px 4px #305f9a;
 }
