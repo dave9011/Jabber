@@ -22,14 +22,14 @@ export default {
 
                 self.$store.state.socket.emit('userJoined', {email: self.$store.state.currentUser.email});
             } else {
-                alert('Unable to login user with email: ' + result.user.email);
+                alert('Unable to login user with email: ' + result.email);
             }
         });
     },
     methods: {
         onSubmit: function (event) {
             var username = this.username.trim();
-            var email = this.email.trim();
+            var email = this.email.trim().toLowerCase();
 
             if (username && email) {
                 this.$store.state.socket.emit('attemptLogin', {

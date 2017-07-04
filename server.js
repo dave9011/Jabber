@@ -56,23 +56,41 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
                 return;
             }
 
-            users.find({'email': email}).limit(1).toArray(function (error, result) {
-                socket.emit('loginAttemptResult', {
-                    email: result[0].email ? result[0].email : email,
-                    user: result[0],
-                    username: result[0].username ? result[0].username : username,
-                    valid: result.length > 0
-                });
+            var usernameRegex = new RegExp('^' + username + '$');
+            var emailRegex = new RegExp('^' + email.toLowerCase() + '$', "i");
 
-                messages.find().sort({'_id': -1}).limit(80).toArray(function(error, result) {
-                    if (error) {
-                        throw error;
+            users.find({'email': emailRegex, 'username': usernameRegex}).limit(1).toArray(function (error, result) {
+                var response;
+
+                if (result.length > 0) {
+                    response = {
+                        email: email,
+                        user: result[0],
+                        username: result[0].username ? result[0].username : username,
+                        valid: true
                     }
+                } else {
+                    response = {
+                        email: email,
+                        user: null,
+                        username: username,
+                        valid: false
+                    }
+                }
 
-                    socket.emit('output', result);
-                });
+                socket.emit('loginAttemptResult', response);
 
-                getConnectedUsers(false, updateConnectedUsers);
+                if (response.valid) {
+					messages.find().sort({'_id': -1}).limit(80).toArray(function(error, result) {
+						if (error) {
+							throw error;
+						}
+
+						socket.emit('output', result);
+					});
+
+					getConnectedUsers(false, updateConnectedUsers);
+				}
             });
         });
 
