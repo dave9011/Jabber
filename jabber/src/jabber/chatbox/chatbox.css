@@ -122,6 +122,7 @@
 
 .connected-users {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .connected-users .user-info {

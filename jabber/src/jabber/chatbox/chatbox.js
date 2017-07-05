@@ -35,6 +35,16 @@ export default {
     created: function () {
         var self = this;
 
+        window.onbeforeunload = function (event) {
+            self.$store.state.socket.emit('userLogout', {
+                id: self.$store.getters.user._id
+            });
+
+            self.$store.state.socket.disconnect();
+
+            return null;
+        };
+
         self.$store.state.socket.on('output', function (data) {
             self.$store.commit('setMessages', data);
 

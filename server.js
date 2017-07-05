@@ -2,6 +2,7 @@
 var _ = require('lodash/core');
 
 var mongo = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 var client = require('socket.io').listen(8080).sockets;
 
 mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
@@ -101,7 +102,8 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
 				}).then(function (result) {
 					if (result.result.nModified === 1) {
 						socket.emit('loginAttemptResult', {
-							success: true
+							success: true,
+                            user: user
 						});
 					} else {
 						socket.emit('loginAttemptResult', {
@@ -116,6 +118,25 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
 						success: false
 					});
 				});
+            });
+        });
+
+        // //Notify all clients that a new user has connected
+        socket.on('userLogout', function (data) {
+            var userId = data.id;
+
+            // Attempt to set user to logged in
+            users.updateOne({
+                _id: new ObjectId(userId)
+            }, {
+                $set: {'isLoggedIn': false}
+            }).then(function (result) {
+                if (result.result.nModified !== 1) {
+                    console.log('Unable to log out user with _id: ' + userId);
+                }
+            }, function (error) {
+                console.log('Error: Unable to log out user with _id: ' + userId);
+                console.log('Error: ' + error);
             });
         });
 

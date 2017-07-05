@@ -24,8 +24,14 @@ const state = {
 // define the possible mutations that can be applied to our state
 const mutations = {
     setCurrentUser: (state, user) => state.currentUser = user,
-    setLoggedIn: (state) => state.loggedIn = true,
-    setLoggedOut: (state) => state.loggedIn = false,
+    setLoggedIn: (state) => {
+        state.currentUser.loggedIn = true;
+        state.loggedIn = true
+    },
+    setLoggedOut: (state) => {
+        state.currentUser.loggedIn = false;
+        state.loggedIn = false
+    },
     setMessages: (state, data) => {
         // MongoDB contains a timestamp in the first 8 digits of the object's ID, we'll get the time from there
         data.forEach(function (message) {
