@@ -63,6 +63,10 @@ export default {
             }
         });
 
+        // Initialize notification audio object
+        self.$store.state.messageNotif = new Audio('../static/notif.mp3');
+        self.$store.state.messageNotif.volume = 0.1;
+
         self.$store.state.socket.emit('getConnectedUsers');
     },
     mounted: function() {
