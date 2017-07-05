@@ -10,7 +10,11 @@
                 <input type="email" placeholder="e.g. example@email.com" v-model="email">
             </div>
             <div class="form-row">
-                <button class="submit-btn" v-on:click="onSubmit">Submit</button>
+                <button class="submit-btn" v-bind:class="{'sign-up': isCreating}" v-on:click="onSubmit">{{isCreating ? 'Sign Up' : 'Log In'}}</button>
+            </div>
+            <div class="create-account" v-on:click="toggleIsCreating">
+                <span v-if="isCreating">Back to Log In</span>
+                <span v-else>Don't have an account? Click here to sign up!</span>
             </div>
         </div>
     </div>

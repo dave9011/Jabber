@@ -14,8 +14,6 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
 	});
 
 	client.on('connection', function (socket) {
-		console.log('Someone has connected');
-
 		var messages = db.collection('messages');
 		var users = db.collection('users');
 
@@ -42,17 +40,17 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
 		};
 
 		//When typing detected
-		socket.on('typing', function (data) {
+		socket.on('userTyping', function (data) {
 			socket.broadcast.emit('updateTyping', {username: data.username});
 		});
 
         // //Notify all clients that a new user has connected
-        socket.on('attemptLogin', function (data) {
+        socket.on('attemptUserLogin', function (data) {
             var email = data.email;
             var username = data.username;
 
-            if (!email) {
-                console.log('Invalid email supplied: ' + email);
+            if (!(email && username)) {
+                console.log('Invalid email or username supplied');
                 return;
             }
 
@@ -60,71 +58,108 @@ mongo.connect('mongodb://127.0.0.1/jabber', function(error, db) {
             var emailRegex = new RegExp('^' + email.toLowerCase() + '$', "i");
 
             users.find({'email': emailRegex, 'username': usernameRegex}).limit(1).toArray(function (error, result) {
-                var response;
-
-                if (result.length > 0) {
-                    response = {
-                        email: email,
-                        user: result[0],
-                        username: result[0].username ? result[0].username : username,
-                        valid: true
-                    }
-                } else {
-                    response = {
-                        email: email,
-                        user: null,
-                        username: username,
-                        valid: false
-                    }
-                }
-
-                socket.emit('loginAttemptResult', response);
-
-                if (response.valid) {
-					messages.find().sort({'_id': -1}).limit(80).toArray(function(error, result) {
-						if (error) {
-							throw error;
-						}
-
-						socket.emit('output', result);
+				// If an error occurred when searching for the user
+				if (error !== null) {
+					socket.emit('loginAttemptResult', {
+						error: error,
+						success: false
 					});
 
-					getConnectedUsers(false, updateConnectedUsers);
+					return;
 				}
+
+				// Check if user was not found
+				if (result.length === 0) {
+					socket.emit('loginAttemptResult', {
+						error_code: 604,	// Error Code 404 will be user not found
+						error: 'User not found',
+						success: false
+					});
+
+					return;
+				}
+
+				// Check if user is already logged in
+				var user = result[0];
+
+				// Error out if user is already logged in
+				if (user.isLoggedIn) {
+					socket.emit('loginAttemptResult', {
+						error_code: 600,
+						error: 'User is already logged in',
+						success: false
+					});
+
+					return;
+				}
+
+				// Attempt to set user to logged in
+				users.updateOne({
+					_id: user._id
+				}, {
+					$set: {isLoggedIn: true}
+				}).then(function (result) {
+					if (result.result.nModified === 1) {
+						socket.emit('loginAttemptResult', {
+							success: true
+						});
+					} else {
+						socket.emit('loginAttemptResult', {
+							error_code: 601,
+							error: 'Unable to login user',
+							success: false
+						});
+					}
+				}, function (error) {
+					socket.emit('loginAttemptResult', {
+						error: error,
+						success: false
+					});
+				});
             });
         });
 
-		//Notify all clients that a new user has connected
-		socket.on('userJoined', function (data) {
-			var email = data.email;
+		socket.on('getConnectedUsers', function (data) {
+			getConnectedUsers(true, updateConnectedUsers);
+		});
 
-            if (!email) {
-                console.log('Invalid email supplied: ' + email);
+        socket.on('attemptUserSignUp', function (data) {
+            var username = data.username;
+            var email = data.email.toLowerCase();
+
+            if (!(email && username)) {
+                console.log('Invalid email or username supplied');
                 return;
             }
 
-			users.insert({email : email}, function (error, result) {
-				if (error && error.code === 11000) {
-					console.log(email + ' already exists!');
-				}
+            var newUser  = {email : email, username: username, isLoggedIn: false};
 
-				getConnectedUsers(true, updateConnectedUsers);
+			var respond = function (result) {
+				socket.emit('userSignUpAttemptResult', {
+					data: result
+				});
+			};
+
+            users.insertOne(newUser).then(function (result) {
+				users.find({_id: result.insertedId}).limit(1).toArray(function (error, result) {
+					socket.emit('userSignUpAttemptResult', {
+						error: error,
+						data: result[0]
+					});
+				});
+			}, respond);
+        });
+
+		socket.on('userLeft', function (data) {
+			var username = data.username;
+
+			users.deleteMany({username: username}, function(error, result) {
+			    getConnectedUsers(true, updateConnectedUsers);
 			});
 		});
 
-		socket.on('userLeft', function (data) {
-			var name = data.name;
-
-			users.deleteMany({
-					"name": name
-				}, function(error, results){
-					getConnectedUsers(true, updateConnectedUsers);
-				}
-			);
-		});
-
 		//Wait for input
-		socket.on('input', function (data) {
+		socket.on('newUserMessage', function (data) {
 			var username = data.username;
 			var message = data.message;
 			var userId = data.user_id;
