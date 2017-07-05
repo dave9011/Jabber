@@ -27,10 +27,8 @@ const mutations = {
     setLoggedIn: (state) => state.loggedIn = true,
     setLoggedOut: (state) => state.loggedIn = false,
     setMessages: (state, data) => {
-        state.messages = state.messages.concat(data);
-
         // MongoDB contains a timestamp in the first 8 digits of the object's ID, we'll get the time from there
-        state.messages.forEach(function (message) {
+        data.forEach(function (message) {
             var timestamp = message._id.toString().substring(0, 8);
 
             message.time = new Date(parseInt(timestamp, 16) * 1000).toLocaleString('en-US', {
@@ -38,13 +36,22 @@ const mutations = {
                 minute: '2-digit'
             });
         });
+
+        state.messages = state.messages.concat(data);
     },
     setUsers: (state, data) => state.users = data
+};
+
+const getters = {
+    user: state => {
+        return state.currentUser;
+    }
 };
 
 // create the Vuex instance by combining the state and mutations objects
 // then export the Vuex store for use by our components
 export default new Vuex.Store({
     state,
-    mutations
+    mutations,
+    getters
 })

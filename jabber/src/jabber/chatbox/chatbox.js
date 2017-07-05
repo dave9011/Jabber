@@ -62,6 +62,8 @@ export default {
                 }, 1600);
             }
         });
+
+        self.$store.state.socket.emit('getConnectedUsers');
     },
     mounted: function() {
         this.status = this.statuses.ONLINE;
@@ -81,7 +83,7 @@ export default {
             if (event.which === 13 && event.shiftKey === false) {
                 event.preventDefault();
 
-                self.$store.state.socket.emit('input', {
+                self.$store.state.socket.emit('newUserMessage', {
                     user_id: self.$store.state.currentUser._id,
                     username: username,
                     message: message
@@ -89,7 +91,7 @@ export default {
 
                 self.newMessage = '';
             } else {
-                self.$store.state.socket.emit('typing', {
+                self.$store.state.socket.emit('userTyping', {
                     username: username
                 });
             }

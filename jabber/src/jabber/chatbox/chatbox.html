@@ -3,11 +3,11 @@
         <div class="left-content">
             <div class="chat-messages-hold">
                 <div class="chat_message" v-for="message in sortedMessages" v-bind:class="{'own-message': isOwnMessage(message)}">
-                    <div class="message" v-if="!isOwnMessage(message)">
-                        <span>{{message.name}} [{{message.time}}] </span>{{message.message}}
+                    <div class="message">
+                        {{message.message}}
                     </div>
-                    <div class="message " v-else>
-                        {{message.message}} <span>{{message.name}} [{{message.time}}]</span>
+                    <div class="message-info">
+                        {{message.name}} {{message.time}}
                     </div>
                 </div>
             </div>
